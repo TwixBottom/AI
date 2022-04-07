@@ -1,10 +1,11 @@
-//! \file Behavior_TODO.cpp
+﻿//! \file Behavior_TODO.cpp
 //! \brief Implements the <code>fullsail_ai::fundamentals::Behavior</code> abstract class.
 //! \author Jeremiah Blanchard with code from Cromwell D. Enage
 
 // #include <queue>   NOTE: Only use if your QueueList is not working
 #include <stack>
 #include "Behavior.h"
+#include "../QueueList/QueueList.h"
 
 namespace fullsail_ai { namespace fundamentals {
 
@@ -36,6 +37,65 @@ namespace fullsail_ai { namespace fundamentals {
 	bool Behavior::isLeaf() const
 	{
 		return false;
+	}
+
+	size_t Behavior::getChildCount() const
+	{
+		return children.size();
+	}
+
+	Behavior* Behavior::getChild(size_t index)
+	{
+		return children[index];
+	}
+
+	Behavior const* Behavior::getChild(size_t index) const
+	{
+		return children[index];
+	}
+
+	void Behavior::addChild(Behavior* child)
+	{
+		children.push_back(child);
+	}
+
+	void Behavior::breadthFirstTraverse(void(*dataFunction)(Behavior const*)) const
+	{
+		QueueList<Behavior const*> line;
+		line.enqueue(this);
+
+		while (!line.isEmpty())
+		{
+			Behavior const* node = line.getFront();
+			line.dequeue();
+
+			dataFunction(node);
+
+			for (int i = 0; i < node->children.size(); i++)
+			{
+				line.enqueue(node->children[i]);
+			}
+		}
+	}
+
+	void Behavior::preOrderTraverse(void(*dataFunction)(Behavior const*)) const
+	{
+		dataFunction(this);
+
+		for (int i = 0; i < children.size(); i++)
+		{
+			children[i]->preOrderTraverse(dataFunction);
+		}
+	}
+
+	void Behavior::postOrderTraverse(void(*dataFunction)(Behavior const*)) const
+	{
+		for (int i = 0; i < children.size(); i++)
+		{
+			children[i]->postOrderTraverse(dataFunction);
+		}
+
+		dataFunction(this);
 	}
 
 	//! \TODO

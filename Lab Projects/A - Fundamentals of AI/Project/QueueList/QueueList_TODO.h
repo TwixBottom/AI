@@ -17,77 +17,124 @@ namespace fullsail_ai { namespace fundamentals {
 	template<typename T>
 	QueueList<T>::QueueList()
 	{
+		front = back = nullptr;
 	}
 
 	template<typename T>
 	QueueList<T>::~QueueList()
 	{
+		removeAll();
 	}
 
 	template <typename T>
 	typename QueueList<T>::Iterator& QueueList<T>::Iterator::operator++()
 	{
 		// TODO: Complete the definition of this operator.
+		this->currentNode = this->currentNode->next;
+		return *this;
 	}
 
 	template <typename T>
 	T QueueList<T>::Iterator::operator*() const
 	{
 		// TODO: Complete the definition of this operator.
+		return this->currentNode->data;
 	}
 
 	template <typename T>
 	bool QueueList<T>::isEmpty() const
 	{
-		// Check if the current node is null 
-		// return true is null
-		// else return false
-		
+		if (front == nullptr)
+		{
+			return true;
+		}
+		return false;		
 	}
 
 	template <typename T>
 	void QueueList<T>::enqueue(T element)
 	{
-		// check if the list is not empty
-		// set the elements next to the front
-		// set the front to the element
+		Node* node = new QueueList<T>::Node(element);
 
-		// if it is empty set the front to element
+		if (isEmpty())
+		{
+			front = node;
+		}
+		else
+		{
+			back->next = node;
+		}
+		back = node;
 	}
 	
 	template <typename T>
 	T QueueList<T>::getFront() const
 	{
-		// return front
+		return front->data;
 	}
 
 	template <typename T>
 	void QueueList<T>::dequeue()
 	{
-		// Check if the fronts next is not null
-		// if not null create a temp of the front 
-		// set the front next to front 
-		// delete the temp
-		// else delete the front
+		remove(front->data);
 	}
 
 	template <typename T>
 	void QueueList<T>::removeAll()
 	{
-		// loop while the list is not empty
-		// de the same ads dequeue
+		while (!isEmpty())
+		{
+			remove(front->data);
+		}
+
+		front = back = nullptr;
 	}
 
 	template <typename T>
 	bool QueueList<T>::contains(T element) const
 	{
+		Node* temp = front;
+
+		while (temp != nullptr)
+		{
+			if (temp->data == element)
+			{
+				return true;
+			}
+
+			temp = temp->next;
+		}
 		return false;
 	}
 
 	template <typename T>
 	void QueueList<T>::remove(T element)
 	{
-		
+		Node* temp = front;
+
+		if (front->data == element)
+		{
+			front = temp->next;
+			delete temp;
+			return;
+		}
+
+		while (temp != nullptr)
+		{
+			if (temp->next == nullptr)
+			{
+				return;
+			}
+			else if (temp->next->data == element)
+			{
+				Node* del = temp->next;
+				temp->next = del->next;
+				delete del;
+				return;
+			}
+
+			temp = temp->next;
+		}
 	}
 
 }}  // namespace fullsail_ai::fundamentals
