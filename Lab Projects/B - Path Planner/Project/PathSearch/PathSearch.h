@@ -25,6 +25,8 @@
 
 #include <vector>
 #include <unordered_map>
+#include <queue>
+
 #include "../TileSystem/Tile.h"
 #include "../TileSystem/TileMap.h"
 #include "../platform.h"
@@ -47,6 +49,7 @@ namespace fullsail_ai { namespace algorithms {
 			PlannerNode* parent;
 
 			//TODO: Add cost variables for whichever search you are currently working on
+			float heuristicCost;
 		};
 
 		std::unordered_map<Tile*, SearchNode*> nodes;
@@ -54,6 +57,19 @@ namespace fullsail_ai { namespace algorithms {
 
 		TileMap* tileMap;
 		//TODO: Add other supporting variables and functions
+		
+		PlannerNode* begin;
+		PlannerNode* goal;
+		class Compare
+		{
+		public:
+			bool operator() (PlannerNode* lhs, PlannerNode* rhs)
+			{
+				return (lhs->heuristicCost > rhs->heuristicCost);
+			}
+		};
+		std::priority_queue<PlannerNode*, std::vector<PlannerNode*>, Compare> queue;
+		
 
 	public:
 		//! \brief Default constructor.
@@ -102,3 +118,4 @@ namespace fullsail_ai { namespace algorithms {
 
 #endif  // _FULLSAIL_AI_PATH_PLANNER_PATH_SEARCH_H_
 
+ 
