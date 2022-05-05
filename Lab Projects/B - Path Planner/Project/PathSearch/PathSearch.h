@@ -50,6 +50,8 @@ namespace fullsail_ai { namespace algorithms {
 
 			//TODO: Add cost variables for whichever search you are currently working on
 			float heuristicCost;
+			float giveCost;
+			float finalCost;
 		};
 
 		std::unordered_map<Tile*, SearchNode*> nodes;
@@ -60,15 +62,17 @@ namespace fullsail_ai { namespace algorithms {
 		
 		PlannerNode* begin;
 		PlannerNode* goal;
+		
 		class Compare
 		{
 		public:
 			bool operator() (PlannerNode* lhs, PlannerNode* rhs)
 			{
-				return (lhs->heuristicCost > rhs->heuristicCost);
+				return (lhs->finalCost > rhs->finalCost);
 			}
 		};
-		std::priority_queue<PlannerNode*, std::vector<PlannerNode*>, Compare> queue;
+		 
+		PriorityQueue<PlannerNode*, Compare> queue;
 		
 
 	public:

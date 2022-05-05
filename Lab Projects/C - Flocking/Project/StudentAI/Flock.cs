@@ -26,22 +26,77 @@ namespace FullSailAFI.SteeringBehaviors.StudentAI
 
         private void CalculateAverages()
         {
+            Vector3 avgPos = Vector3.Empty;
+            Vector3 avgFor = Vector3.Empty;
+
+            foreach (MovingObject obj in Boids)
+            {
+                avgPos += obj.Position;
+                avgFor += obj.Velocity;
+            }
+
+            AveragePosition = avgPos / Boids.Count;
+            AverageForward = avgFor / Boids.Count;
+
             return;
         }
 
         private Vector3 CalculateAlignmentAcceleration(MovingObject boid)
         {
-            return Vector3.Empty;
+            Vector3 vec = AverageForward / boid.MaxSpeed;
+
+            if (vec.Length > 1)
+            {
+                vec.Normalize();
+            }
+
+            return vec * AlignmentStrength;
         }
 
         private Vector3 CalculateCohesionAcceleration(MovingObject boid)
         {
-            return Vector3.Empty;
+            Vector3 vec = AveragePosition - boid.Position;
+            float dis = vec.Length;
+            
+            vec.Normalize();
+
+            if (dis < FlockRadius)
+            {
+                vec *= dis / FlockRadius;
+            }
+            
+            return vec * CohesionStrength;
         }
 
         private Vector3 CalculateSeparationAcceleration(MovingObject boid)
         {
-            return Vector3.Empty;
+            Vector3 sum = Vector3.Empty;
+           
+            foreach (MovingObject otherBoid in Boids)
+            {
+                if (otherBoid == boid)
+                {
+                    continue;
+                }
+                
+                Vector3 vec = boid.Position - otherBoid.Position;
+                float dis = vec.Length;
+                float safedis = boid.SafeRadius + otherBoid.SafeRadius;
+
+                if (dis < safedis)
+                {
+                    vec.Normalize();
+                    vec *= (safedis - dis) / safedis;
+                    sum += vec;
+                }
+            }
+
+            if (sum.Length > 1.0f)
+            {
+                sum.Normalize();
+            }
+
+            return sum * SeparationStrength;
         }
 
         #endregion
@@ -50,6 +105,26 @@ namespace FullSailAFI.SteeringBehaviors.StudentAI
 
         public virtual void Update(float deltaTime)
         {
+            CalculateAverages();
+
+            foreach (MovingObject obj in Boids)
+            {
+                Vector3 accel = CalculateAlignmentAcceleration(obj);
+                accel += CalculateCohesionAcceleration(obj);
+                accel += CalculateSeparationAcceleration(obj);
+                float accelMult = obj.MaxSpeed;
+                accel *= accelMult * deltaTime;
+
+                obj.Velocity += accel;
+
+                if (obj.Velocity.Length > obj.MaxSpeed)
+                {
+                    obj.Velocity.Normalize();
+                    obj.Velocity *= obj.MaxSpeed;
+                }
+
+                obj.Update(deltaTime);
+            }
             return;
         }
         #endregion
